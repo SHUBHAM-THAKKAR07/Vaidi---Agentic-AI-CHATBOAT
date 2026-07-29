@@ -46,16 +46,17 @@ app.use(cors({
 app.use(express.json({ limit: '10kb' }));
 app.use(generalLimiter);
 
-// Add this root endpoint so visiting / returns a message instead of "Cannot GET /"
-app.get('/', (req, res) => {
-  res.json({ message: 'Vaidi Health API is running successfully!' });
-});
 
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/triage', triageRoutes);
 app.use('/api/teleconsult', teleconsultRoutes);
 app.use('/api/worker', workerRoutes);
+
+// Add this root endpoint so visiting / returns a message instead of "Cannot GET /"
+app.get('/', (req, res) => {
+  res.json({ message: 'Vaidi Health API is running successfully!' });
+});
 
 // Health check
 app.get('/api/health', (req, res) => {
