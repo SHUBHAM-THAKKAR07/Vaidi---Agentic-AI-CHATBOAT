@@ -63,15 +63,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'Vaidi Health API', timestamp: new Date().toISOString() });
 });
 
-// Serve static frontend in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
-  // Only serve index.html for non-API routes (SPA fallback)
-  app.get(/^(?!\/api).*/, (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-  });
-}
-
 // 404 for unknown API routes
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
