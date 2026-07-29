@@ -1,14 +1,13 @@
 // Load .env manually — handles UTF-8 and UTF-16LE (BOM) encodings
 const fs = require('fs');
-const envPath = require('path').join(__dirname, '.env');
+const path = require('path');
+const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
   const raw = fs.readFileSync(envPath);
-  // Detect UTF-16 LE BOM (FF FE) or wide-char pattern (every odd byte is 0x00)
   const isUtf16 = (raw[0] === 0xFF && raw[1] === 0xFE) ||
                   (raw.length > 4 && raw[1] === 0x00 && raw[3] === 0x00);
   const text = isUtf16 ? raw.toString('utf16le') : raw.toString('utf8');
   text.split(/\r?\n/).forEach(line => {
-    // Strip BOM character if present at start of first line
     const trimmed = line.replace(/^\uFEFF/, '').trim();
     if (!trimmed || trimmed.startsWith('#')) return;
     const eq = trimmed.indexOf('=');
@@ -18,10 +17,10 @@ if (fs.existsSync(envPath)) {
     if (key && !(key in process.env)) process.env[key] = val;
   });
 }
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const path = require('path');
 
 const authRoutes = require('./routes/auth');
 const triageRoutes = require('./routes/triage');
@@ -46,24 +45,27 @@ app.use(cors({
 app.use(express.json({ limit: '10kb' }));
 app.use(generalLimiter);
 
-
-// API routes
+// ---- API routes ----
 app.use('/api/auth', authRoutes);
 app.use('/api/triage', triageRoutes);
 app.use('/api/teleconsult', teleconsultRoutes);
 app.use('/api/worker', workerRoutes);
 
-// Add this root endpoint so visiting / returns a message instead of "Cannot GET /"
-app.get('/', (req, res) => {
-  res.json({ message: 'Vaidi Health API is running successfully!' });
-});
-
-// Health check
+// Health check (moved under /api so it doesn't clash with the frontend route)
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'Vaidi Health API', timestamp: new Date().toISOString() });
 });
 
-// 404 for unknown API routes
+// ---- Serve the built React app (client/dist) ----
+const clientBuildPath = path.join(__dirname, '..', 'client', 'dist');
+app.use(express.static(clientBuildPath));
+
+// Any non-API GET request falls through to the React app (client-side routing)
+app.get(/^\/(?!api\/).*/, (req, res) => {
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
+});
+
+// 404 for unmatched /api/* routes only
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
