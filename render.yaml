@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: vaidi-health
+    runtime: node
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WATSONX_API_KEY
+        sync: false
+      - key: WATSONX_PROJECT_ID
+        sync: false
+      - key: WATSONX_URL
+        sync: false
+      - key: WATSONX_MODEL_ID
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true

@@ -1,4 +1,23 @@
-require('dotenv').config();
+// Load .env manually — handles UTF-8 and UTF-16LE (BOM) encodings
+const fs = require('fs');
+const envPath = require('path').join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+  const raw = fs.readFileSync(envPath);
+  // Detect UTF-16 LE BOM (FF FE) or wide-char pattern (every odd byte is 0x00)
+  const isUtf16 = (raw[0] === 0xFF && raw[1] === 0xFE) ||
+                  (raw.length > 4 && raw[1] === 0x00 && raw[3] === 0x00);
+  const text = isUtf16 ? raw.toString('utf16le') : raw.toString('utf8');
+  text.split(/\r?\n/).forEach(line => {
+    // Strip BOM character if present at start of first line
+    const trimmed = line.replace(/^\uFEFF/, '').trim();
+    if (!trimmed || trimmed.startsWith('#')) return;
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) return;
+    const key = trimmed.substring(0, eq).trim();
+    const val = trimmed.substring(eq + 1).trim();
+    if (key && !(key in process.env)) process.env[key] = val;
+  });
+}
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
