@@ -36,22 +36,80 @@ async function runTriageAgent(message, conversationHistory = [], language = 'en'
     contextMessage = `Patient first message: "${message}"${languageHint}\n\nVaidi response (greet warmly and ask one clarifying question):`;
   }
 
-  const response = await callGranite(TRIAGE_SYSTEM_PROMPT, contextMessage, 350);
+  try {
+    const response = await callGranite(TRIAGE_SYSTEM_PROMPT, contextMessage, 350);
 
-  const isReadyToAssess = response.includes('[READY_TO_ASSESS]') || questionCount >= 7;
-  const isEmergency = response.includes('[EMERGENCY]');
-  const cleanResponse = response
-    .replace(/\[READY_TO_ASSESS\]/g, '')
-    .replace(/\[EMERGENCY\]/g, '')
-    .replace(/^(Vaidi:|Assistant:)\s*/i, '')
-    .trim();
+    const isReadyToAssess = response.includes('[READY_TO_ASSESS]') || questionCount >= 7;
+    const isEmergency = response.includes('[EMERGENCY]');
+    const cleanResponse = response
+      .replace(/\[READY_TO_ASSESS\]/g, '')
+      .replace(/\[EMERGENCY\]/g, '')
+      .replace(/^(Vaidi:|Assistant:)\s*/i, '')
+      .trim();
+
+    return {
+      message: cleanResponse || (language === 'gu' ? "હું સમજી શકું છું. શું તમે જણાવી શકો કે આ ક્યારથી શરૂ થયું?" : "I understand. Can you tell me more about when this started?"),
+      isReadyToAssess,
+      isEmergency,
+      questionCount: questionCount + 1
+    };
+  } catch (err) {
+    console.error('[Triage Agent LLM Fallback]', err.message);
+    return getFallbackTriageResponse(message, questionCount, language);
+  }
+}
+
+function getFallbackTriageResponse(message, questionCount, language) {
+  const msgLower = (message || '').toLowerCase();
+  const emergencyKeywords = [
+    'chest pain', 'heart attack', 'difficulty breathing', 'shortness of breath',
+    'unconscious', 'seizure', 'severe bleeding', 'choking', 'stroke',
+    'છાતીમાં દુખાવો', 'શ્વાસ લેવામાં તકલીફ', 'બેભાન'
+  ];
+
+  if (emergencyKeywords.some(kw => msgLower.includes(kw))) {
+    return {
+      message: language === 'gu'
+        ? 'આ ગંભીર લક્ષણો હોઈ શકે છે. કૃપા કરીને તાત્કાલિક નજીકના આરોગ્ય કેન્દ્ર (PHC) જાઓ અથવા 108 પર ફોન કરો.'
+        : 'These symptoms could indicate a medical emergency. Please visit your nearest health centre immediately or call 108 for an ambulance.',
+      isEmergency: true,
+      isReadyToAssess: false,
+      questionCount: questionCount + 1
+    };
+  }
+
+  const isReady = questionCount >= 3;
+  let reply = '';
+
+  if (language === 'gu') {
+    if (questionCount === 0) {
+      reply = 'તમને અસ્વસ્થતા છે તે જાણીને દુઃખ થયું. તમને કયા લક્ષણો જણાય છે અને ક્યારથી શરૂ થયા છે?';
+    } else if (questionCount === 1) {
+      reply = 'સમજાયું. આ તકલીફ કેટલી તીવ્ર છે — હળવી, મધ્યમ કે વધારે?';
+    } else if (questionCount === 2) {
+      reply = 'શું તમને તાવ, ઉલ્ટી, ચક્કર કે શરીરનો દુખાવો જેવા અન્ય કોઈ લક્ષણો છે?';
+    } else {
+      reply = 'માહિતી આપવા બદલ આભાર. હવે અમે તમારી સ્થિતિનું મૂલ્યાંકન કરી શકીએ છીએ.';
+    }
+  } else {
+    if (questionCount === 0) {
+      reply = "I'm sorry you are not feeling well. Can you describe what symptoms you have and how long you've had them?";
+    } else if (questionCount === 1) {
+      reply = 'Thank you for explaining. How severe would you describe the symptoms — mild, moderate, or severe?';
+    } else if (questionCount === 2) {
+      reply = 'Understood. Do you have any other symptoms like fever, vomiting, body ache, or dizziness?';
+    } else {
+      reply = 'Thank you for sharing these details. We have enough information to assess your condition.';
+    }
+  }
 
   return {
-    message: cleanResponse || "I understand. Can you tell me more about when this started?",
-    isReadyToAssess,
-    isEmergency,
+    message: reply,
+    isReadyToAssess: isReady,
+    isEmergency: false,
     questionCount: questionCount + 1
   };
 }
 
 module.exports = { runTriageAgent };
+

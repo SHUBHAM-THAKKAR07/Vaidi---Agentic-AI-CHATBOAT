@@ -30,7 +30,12 @@ async function runSeverityAgent(conversationHistory) {
 
   const prompt = `Analyze this consultation and output JSON:\n\n${historyText}`;
 
-  const response = await callGranite(SEVERITY_SYSTEM_PROMPT, prompt, 700);
+  let response = '';
+  try {
+    response = await callGranite(SEVERITY_SYSTEM_PROMPT, prompt, 700);
+  } catch (err) {
+    console.warn('[Severity Agent Fallback to Rule Engine]', err.message || err);
+  }
 
   // Try to extract and normalize any JSON from the response
   let rawResult = tryParseJson(response);
@@ -40,6 +45,7 @@ async function runSeverityAgent(conversationHistory) {
 
   return result;
 }
+
 
 function tryParseJson(text) {
   if (!text) return null;
