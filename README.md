@@ -3,6 +3,7 @@
 # 🌿 Vaidi (વૈદ્ય)
 ### *Intelligent Rural & Tribal Healthcare Access Agent*
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://vaidi-agentic-ai-chatboat.onrender.com/)
 [![IBM Hackathon](https://img.shields.io/badge/IBM%20Challenge%2019-Rural%20%26%20Tribal%20Healthcare-052F5F?style=for-the-badge&logo=ibm&logoColor=white)](https://www.ibm.com)
 [![watsonx.ai](https://img.shields.io/badge/IBM-watsonx.ai-1261FE?style=for-the-badge&logo=ibm&logoColor=white)](https://www.ibm.com/watsonx)
 [![Granite & Llama 3.3](https://img.shields.io/badge/LLM-Llama%203.3%20%2F%20Granite%203.3-0062FF?style=for-the-badge)](https://www.ibm.com/granite)
@@ -15,7 +16,7 @@
 
 **Bridging the last-mile healthcare gap in tribal Gujarat (Dangs, Narmada, and Chhota Udepur) through multi-agent AI triage, teleconsultation scheduling, and frontline health-worker logistics.**
 
-[Explore Features](#-core-capabilities) • [System Architecture](#-system-architecture) • [Agent Workflows](#-the-4-specialized-ai-agents) • [Quick Start](#-quick-start) • [Demo Credentials](#-demo-credentials) • [Deployment](#-production-deployment)
+[🚀 Live Demo](https://vaidi-agentic-ai-chatboat.onrender.com/) • [Key Features](#-key-features--design-philosophy) • [System Architecture](#-system-architecture) • [Agent Workflows](#-the-4-specialized-ai-agents) • [Quick Start](#-quick-start) • [Demo Credentials](#-demo-credentials) • [Deployment](#-live-deployment)
 
 ---
 
@@ -358,24 +359,21 @@ Pre-configured demo accounts for evaluating patient and worker experiences:
 
 ---
 
-## ☁️ Production Deployment
+## ☁️ Live Deployment
 
-### Option 1: Render Unified Full-Stack Service (Recommended)
-This repository includes a pre-configured `render.yaml` blueprint. The Express server serves both the API endpoints and the pre-built React production bundle (`client/dist`).
+The application is deployed and live on **Render**:
 
-1. Fork or push this repository to GitHub.
-2. Log into [Render.com](https://render.com) and navigate to **Blueprints**.
-3. Connect your repository. Render will detect `render.yaml`.
-4. Fill in the environment variables in the Render Dashboard:
-   * `WATSONX_API_KEY`
-   * `WATSONX_PROJECT_ID`
-   * `WATSONX_URL`
-   * `WATSONX_MODEL_ID`
-5. Click **Apply**. Render will automatically build the React frontend and start the Express server.
+<div align="center">
 
-### Option 2: Split Deployment (Vercel + Render)
-* **Frontend**: Deploy `client/` to [Vercel](https://vercel.com). Set `VITE_API_URL=https://your-server.onrender.com`.
-* **Backend**: Deploy `server/` as a Node Web Service on [Render](https://render.com). Add environment variables from `.env.example`.
+### 🌐 **Live Application URL**
+### 🚀 [https://vaidi-agentic-ai-chatboat.onrender.com/](https://vaidi-agentic-ai-chatboat.onrender.com/)
+
+[![Render Deployment](https://img.shields.io/badge/Render-Live%20Application-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://vaidi-agentic-ai-chatboat.onrender.com/)
+
+</div>
+
+> [!TIP]  
+> You can test both the **Patient Triage flow** and the **ASHA Health Worker dashboard** on the live demo using the [Demo Credentials](#-demo-credentials) (`9876543210` / `demo1234` or `9000000001` / `worker123`).
 
 ---
 
