@@ -102,15 +102,6 @@ export default function Login() {
               </div>
             </button>
           </div>
-
-          {/* Demo credentials hint */}
-          <div className="mt-6 w-full max-w-sm">
-            <div className="card-surface text-xs text-muted space-y-1 p-3">
-              <p className="font-semibold text-umber">{t('demoCredentials')}:</p>
-              <p>{t('demoPatient')}</p>
-              <p>{t('demoWorker')}</p>
-            </div>
-          </div>
         </div>
       </div>
     );
